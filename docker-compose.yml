@@ -1,0 +1,27 @@
+version: '3'
+services:
+  hadoop:
+    image: sequenceiq/hadoop-docker:2.7.1
+    container_name: hadoop
+    ports:
+      - "50070:50070" # Hadoop NameNode UI
+      - "8088:8088"   # Hadoop ResourceManager UI
+    volumes:
+      - ./data:/opt/hadoop/data
+
+  hive:
+    image: apache/hive:3.1.3
+    container_name: hive
+    depends_on:
+      - hadoop
+    ports:
+      - "10000:10000" # HiveServer2
+      - "9083:9083"   # Hive Metastore
+    environment:
+      - HIVE_METASTORE_PORT=9083
+      - HIVE_SERVER2_THRIFT_BIND_HOST=0.0.0.0
+      - HIVE_SERVER2_THRIFT_PORT=10000
+      - HADOOP_PORT_9000_TCP_ADDR=hadoop
+      - HADOOP_PORT_9000_TCP_PORT=9000
+    volumes:
+      - ./hive-data:/var/lib/hive
